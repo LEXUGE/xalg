@@ -1,0 +1,29 @@
+name: XAlg
+version: "0.1.0"
+author: LEXUGE (Harry Ying) <lexugeyky@outlook.com>
+about: Random polynomials generator
+args:
+    - depth:
+        short: d
+        long: depth
+        help: Sets the depth of the AST of the polynomials
+        takes_value: true
+        default_value: "5"
+    - coefficient:
+        short: c
+        long: coefficient
+        help: Sets the max of the coefficient of the monomials. Generates in [0..max)
+        takes_value: true
+        default_value: "3"
+    - exponent:
+        short: e
+        long: exponent
+        help: Sets the max of the exponent of the monomials. Generates in [0..max)
+        takes_value: true
+        default_value: "3"
+    - num:
+        short: n
+        long: num
+        help: Sets the number of the polynomials
+        takes_value: true
+        default_value: "1"

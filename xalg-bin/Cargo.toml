@@ -1,0 +1,12 @@
+[package]
+name = "xalg-bin"
+version = "0.1.0"
+description = "Random polynomials generator"
+authors = ["Harry Ying <LEXUGEyky@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lib_xalg = { version="^0.1", path = "../lib_xalg" }
+clap = { version="^2", features = ["yaml"] }

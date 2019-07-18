@@ -1,0 +1,19 @@
+[package]
+name = "lib_xalg"
+version = "0.1.0"
+authors = ["Harry Ying <LEXUGEyky@outlook.com>"]
+description = "A library for generating random polynomials"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "^0.7"
+num = "^0.2"
+
+[dev-dependencies]
+criterion = "^0.2"
+
+[[bench]]
+name = "benchmark"
+harness = false
