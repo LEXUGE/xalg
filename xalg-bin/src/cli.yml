@@ -1,5 +1,5 @@
 name: XAlg
-version: "0.1.0"
+version: "0.1.1"
 author: LEXUGE (Harry Ying) <lexugeyky@outlook.com>
 about: Random polynomials generator
 args:
@@ -18,7 +18,7 @@ args:
     - exponent:
         short: e
         long: exponent
-        help: Sets the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 0)
+        help: Sets the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 1)
         takes_value: true
         default_value: "3"
     - num:

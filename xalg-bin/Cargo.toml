@@ -1,6 +1,6 @@
 [package]
 name = "xalg-bin"
-version = "0.1.0"
+version = "0.1.1"
 repository = "https://github.com/LEXUGE/xalg"
 description = "Random polynomials generator"
 license = "GPL-3.0"

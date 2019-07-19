@@ -41,7 +41,7 @@ pub enum ErrorKind {
 /// Generate the polynomial AST.
 ///
 /// - `depth`: the depth of the AST of the polynomial. (depth >= 0)
-/// - `exponent_limit`: the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 0)
+/// - `exponent_limit`: the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 1)
 /// - `coefficient_limit`: the max of the coefficient of the monomials. Generates in [0..max). (coefficient_limit >= 2)
 pub fn generate<T: Required>(
     depth: T,
@@ -49,7 +49,7 @@ pub fn generate<T: Required>(
     coefficient_limit: T,
 ) -> Result<Polynomial<T>, ErrorKind> {
     if (depth < T::zero())
-        || (exponent_limit < T::zero())
+        || (exponent_limit < T::one())
         || (coefficient_limit < (T::one() + T::one()))
     {
         Err(ErrorKind::WrongNumber)
