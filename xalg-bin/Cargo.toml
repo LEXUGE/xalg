@@ -1,7 +1,9 @@
 [package]
 name = "xalg-bin"
 version = "0.1.0"
+repository = "https://github.com/LEXUGE/xalg"
 description = "Random polynomials generator"
+license = "GPL-3.0"
 authors = ["Harry Ying <LEXUGEyky@outlook.com>"]
 edition = "2018"
 

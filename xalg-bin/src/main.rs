@@ -15,7 +15,7 @@
 
 // use
 use clap::{load_yaml, App};
-use lib_xalg::polynomial::{NeedBrackets::False, Polynomial};
+use lib_xalg::{generate, polynomial::NeedBrackets::False};
 
 fn main() {
     let yaml = load_yaml!("cli.yml");
@@ -32,10 +32,17 @@ fn main() {
         .parse::<i32>()
         .unwrap();
     let num = matches.value_of("num").unwrap().parse::<i32>().unwrap();
+    if num <= 0 {
+        println!("`num` <= 0");
+        return;
+    } else {
+    };
     for _ in 1..=num {
         println!(
             "{}",
-            Polynomial::<i32>::generate(depth, exponent, coefficient).export(False)
+            generate::<i32>(depth, exponent, coefficient)
+                .unwrap()
+                .export(False)
         );
     }
 }

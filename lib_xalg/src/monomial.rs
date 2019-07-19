@@ -28,7 +28,7 @@ pub struct Monomial<T: Required> {
 impl<T: Required> Monomial<T> {
     pub fn generate(mut exponent_limit: T, coefficient_limit: T) -> Self {
         let mut rng = thread_rng();
-        let coefficient = rng.gen_range(T::zero(), coefficient_limit);
+        let coefficient = rng.gen_range(T::one(), coefficient_limit);
         let mut exponents: Vec<T> = Vec::new();
         while exponent_limit > T::one() {
             let exp = rng.gen_range(T::zero(), exponent_limit);
@@ -41,9 +41,11 @@ impl<T: Required> Monomial<T> {
         }
     }
     pub fn export(&self) -> String {
+        let mut flag = false;
         let mut origin = if self.coefficient == T::zero() {
             return self.coefficient.to_string();
         } else if self.coefficient == T::one() {
+            flag = true;
             "".to_string()
         } else {
             self.coefficient.to_string()
@@ -51,10 +53,15 @@ impl<T: Required> Monomial<T> {
         for i in 0..self.exponents.len() {
             if self.exponents[i] == T::zero() {
             } else if self.exponents[i] == T::one() {
+                flag = false;
                 origin.push_str(&format!("x_{{{}}}", (i + 1)))
             } else {
+                flag = false;
                 origin.push_str(&format!("x_{{{}}}^{{{}}}", (i + 1), self.exponents[i]))
             };
+        }
+        if flag {
+            origin.push('1');
         }
         origin
     }

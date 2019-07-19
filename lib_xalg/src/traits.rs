@@ -20,6 +20,13 @@ use {
     std::{fmt::Display, marker::Sized, ops::*},
 };
 
+// marco
+macro_rules! do_impl {
+    ($t:ty) => {
+        impl Required for $t {}
+    };
+}
+
 pub trait Required:
     PartialEq
     + PartialOrd
@@ -43,4 +50,16 @@ where
     //omitted
 }
 
-impl Required for i32 {}
+do_impl!(u8);
+do_impl!(u16);
+do_impl!(u32);
+do_impl!(u64);
+do_impl!(u128);
+do_impl!(usize);
+
+do_impl!(i8);
+do_impl!(i16);
+do_impl!(i32);
+do_impl!(i64);
+do_impl!(i128);
+do_impl!(isize);

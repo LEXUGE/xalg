@@ -6,24 +6,24 @@ args:
     - depth:
         short: d
         long: depth
-        help: Sets the depth of the AST of the polynomials
+        help: Sets the depth of the AST of the polynomials. (depth >= 0)
         takes_value: true
         default_value: "5"
     - coefficient:
         short: c
         long: coefficient
-        help: Sets the max of the coefficient of the monomials. Generates in [0..max)
+        help: Sets the max of the coefficient of the monomials. Generates in [0..max). (coefficient_limit >= 2)
         takes_value: true
-        default_value: "3"
+        default_value: "10"
     - exponent:
         short: e
         long: exponent
-        help: Sets the max of the exponent of the monomials. Generates in [0..max)
+        help: Sets the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 0)
         takes_value: true
         default_value: "3"
     - num:
         short: n
         long: num
-        help: Sets the number of the polynomials
+        help: Sets the number of the polynomials (num >= 1)
         takes_value: true
         default_value: "1"

@@ -20,9 +20,13 @@ use {
 };
 
 #[derive(PartialEq, Copy, Clone)]
+/// The enum which denotes whether an operator need brackets or not.
 pub enum NeedBrackets {
+    /// The kid(s) of it need brackets.
     True,
+    /// The kid(s) of it do(es)n't need brackets.
     False,
+    /// Never need brackets for both its self and its kid(s).
     Never,
 }
 
@@ -37,12 +41,13 @@ enum Operators<T: Required> {
 }
 
 #[derive(Debug)]
+/// The polynomial AST.
 pub struct Polynomial<T: Required> {
     operator: Operators<T>,
 }
 
 impl<T: Required> Polynomial<T> {
-    pub fn generate(depth: T, exponent_limit: T, coefficient_limit: T) -> Self {
+    pub(crate) fn generate(depth: T, exponent_limit: T, coefficient_limit: T) -> Self {
         let mut rng = thread_rng();
         let operator = if depth == T::zero() {
             Operators::Wrap(Monomial::generate(
@@ -117,6 +122,7 @@ impl<T: Required> Polynomial<T> {
         };
         Self { operator }
     }
+    /// export the AST to LaTeX code. Sets the argument to `Needbrackets::False` to use it.
     pub fn export(&self, father_need_brackets: NeedBrackets) -> String {
         let self_need_brackets = self.need_brackets();
         let origin = match &self.operator {
@@ -131,7 +137,7 @@ impl<T: Required> Polynomial<T> {
                 b.export(self_need_brackets)
             ),
             Operators::Mul(a, b) => format!(
-                "{}\\cdot{{}}{}",
+                "{}\\times{{}}{}",
                 a.export(self_need_brackets),
                 b.export(self_need_brackets)
             ),

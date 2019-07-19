@@ -15,14 +15,14 @@
 
 // use(s)
 use {
-    lib_xalg::polynomial::{NeedBrackets::False, Polynomial},
     criterion::{criterion_group, criterion_main, Criterion},
+    lib_xalg::{generate, polynomial::NeedBrackets::False},
 };
 
 fn bench_generate(c: &mut Criterion) {
     c.bench_function("generate", |b| {
         b.iter(|| {
-            Polynomial::generate(10, 10, 20);
+            generate(10, 10, 20).unwrap();
         })
     });
 }
@@ -30,7 +30,7 @@ fn bench_generate(c: &mut Criterion) {
 fn bench_export(c: &mut Criterion) {
     c.bench_function("export", |b| {
         b.iter(|| {
-            Polynomial::generate(10, 10, 20).export(False);
+            generate(10, 10, 20).unwrap().export(False);
         })
     });
 }
