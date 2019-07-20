@@ -1,8 +1,11 @@
 # XAlg
 ![screenshot](Screenshot.png)  
-A random polynomials generator  
+A random formula generator  
 
-## Usage
+## Installation
 ```
 cargo install xalg-bin
 ```
+
+## Usage
+See `xalg-bin -h`

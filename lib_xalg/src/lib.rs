@@ -14,7 +14,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Documentation
-//! A library for generating random polynomials.
+//! A library for generating random formulas.
 //! # Getting Started
 //! ```
 //! generate::<i32>(5,3,3).unwrap().export();
@@ -24,12 +24,12 @@
 
 // mod(s)
 mod monomial;
-/// Module of polynomial AST.
-pub mod polynomial;
+/// Module of formula AST.
+pub mod formula;
 mod traits;
 
 // use(s)
-use crate::{polynomial::Polynomial, traits::Required};
+use crate::{formula::Formula, traits::Required};
 
 /// The enum for denoting error(s).
 #[derive(Debug)]
@@ -38,23 +38,23 @@ pub enum ErrorKind {
     WrongNumber,
 }
 
-/// Generate the polynomial AST.
+/// Generate the formula AST.
 ///
-/// - `depth`: the depth of the AST of the polynomial. (depth >= 0)
+/// - `depth`: the depth of the AST of the formula. (depth >= 0)
 /// - `exponent_limit`: the max of the exponent of the monomials. Generates in [0..max). (exponent_limit >= 1)
 /// - `coefficient_limit`: the max of the coefficient of the monomials. Generates in [0..max). (coefficient_limit >= 2)
 pub fn generate<T: Required>(
     depth: T,
     exponent_limit: T,
     coefficient_limit: T,
-) -> Result<Polynomial<T>, ErrorKind> {
+) -> Result<Formula<T>, ErrorKind> {
     if (depth < T::zero())
         || (exponent_limit < T::one())
         || (coefficient_limit < (T::one() + T::one()))
     {
         Err(ErrorKind::WrongNumber)
     } else {
-        Ok(Polynomial::generate(
+        Ok(Formula::generate(
             depth,
             exponent_limit,
             coefficient_limit,

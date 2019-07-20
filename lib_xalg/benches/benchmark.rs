@@ -16,7 +16,7 @@
 // use(s)
 use {
     criterion::{criterion_group, criterion_main, Criterion},
-    lib_xalg::{generate, polynomial::NeedBrackets::False},
+    lib_xalg::{generate, formula::NeedBrackets::False},
 };
 
 fn bench_generate(c: &mut Criterion) {

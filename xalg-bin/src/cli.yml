@@ -1,12 +1,12 @@
 name: XAlg
-version: "0.1.1"
+version: "0.1.2"
 author: LEXUGE (Harry Ying) <lexugeyky@outlook.com>
-about: Random polynomials generator
+about: Random formula generator
 args:
     - depth:
         short: d
         long: depth
-        help: Sets the depth of the AST of the polynomials. (depth >= 0)
+        help: Sets the depth of the AST of the formulas. (depth >= 0)
         takes_value: true
         default_value: "5"
     - coefficient:
@@ -24,6 +24,6 @@ args:
     - num:
         short: n
         long: num
-        help: Sets the number of the polynomials (num >= 1)
+        help: Sets the number of the formulas (num >= 1)
         takes_value: true
         default_value: "1"

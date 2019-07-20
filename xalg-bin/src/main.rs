@@ -15,7 +15,7 @@
 
 // use
 use clap::{load_yaml, App};
-use lib_xalg::{generate, polynomial::NeedBrackets::False};
+use lib_xalg::{generate, formula::NeedBrackets::False};
 
 fn main() {
     let yaml = load_yaml!("cli.yml");

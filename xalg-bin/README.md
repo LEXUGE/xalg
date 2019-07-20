@@ -1,3 +1,3 @@
 # XAlg
-Random polynomials generator  
+Random formula generator  
 See `xalg-bin --help` for more information.

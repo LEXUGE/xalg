@@ -15,7 +15,7 @@
 
 // use(s)
 use {
-    crate::{monomial::Monomial, polynomial::NeedBrackets::*, traits::Required},
+    crate::{monomial::Monomial, formula::NeedBrackets::*, traits::Required},
     rand::{thread_rng, Rng},
 };
 
@@ -32,21 +32,21 @@ pub enum NeedBrackets {
 
 #[derive(Debug)]
 enum Operators<T: Required> {
-    Add(Box<Polynomial<T>>, Box<Polynomial<T>>),
-    Sub(Box<Polynomial<T>>, Box<Polynomial<T>>),
-    Mul(Box<Polynomial<T>>, Box<Polynomial<T>>),
-    Div(Box<Polynomial<T>>, Box<Polynomial<T>>),
-    Pow(Box<Polynomial<T>>, T),
+    Add(Box<Formula<T>>, Box<Formula<T>>),
+    Sub(Box<Formula<T>>, Box<Formula<T>>),
+    Mul(Box<Formula<T>>, Box<Formula<T>>),
+    Div(Box<Formula<T>>, Box<Formula<T>>),
+    Pow(Box<Formula<T>>, T),
     Wrap(Monomial<T>),
 }
 
 #[derive(Debug)]
-/// The polynomial AST.
-pub struct Polynomial<T: Required> {
+/// The formula AST.
+pub struct Formula<T: Required> {
     operator: Operators<T>,
 }
 
-impl<T: Required> Polynomial<T> {
+impl<T: Required> Formula<T> {
     pub(crate) fn generate(depth: T, exponent_limit: T, coefficient_limit: T) -> Self {
         let mut rng = thread_rng();
         let operator = if depth == T::zero() {
@@ -58,55 +58,55 @@ impl<T: Required> Polynomial<T> {
             let depth = depth - T::one();
             match rng.gen_range(0, 5) {
                 0 => Operators::Add(
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
                 ),
                 1 => Operators::Sub(
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
                 ),
                 2 => Operators::Mul(
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
                 ),
                 3 => Operators::Div(
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
                     )),
                 ),
                 4 => Operators::Pow(
-                    Box::new(Polynomial::generate(
+                    Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
