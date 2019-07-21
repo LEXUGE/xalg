@@ -14,8 +14,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // use
-use clap::{load_yaml, App};
-use lib_xalg::{generate, formula::NeedBrackets::False};
+use {
+    clap::{load_yaml, App},
+    lib_xalg::{
+        formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+        generate,
+        ErrorKind::*,
+    },
+    std::collections::HashSet,
+};
 
 fn main() {
     let yaml = load_yaml!("cli.yml");
@@ -37,12 +44,44 @@ fn main() {
         return;
     } else {
     };
+    // Get flags
+    let mut hashset: HashSet<OperatorFlag> = HashSet::new();
+    if matches.is_present("add") {
+        hashset.insert(Add);
+    } else {
+    };
+    if matches.is_present("sub") {
+        hashset.insert(Sub);
+    } else {
+    };
+    if matches.is_present("mul") {
+        hashset.insert(Mul);
+    } else {
+    };
+    if matches.is_present("div") {
+        hashset.insert(Div);
+    } else {
+    };
+    if matches.is_present("pow") {
+        hashset.insert(Pow);
+    } else {
+    };
+    // generate & export
     for _ in 1..=num {
         println!(
             "{}",
-            generate::<i32>(depth, exponent, coefficient)
-                .unwrap()
-                .export(False)
+            match generate(depth, exponent, coefficient, &hashset) {
+                Err(NoFlag) => {
+                    println!("Please provide at least one operator flag.");
+                    return;
+                }
+                Err(WrongNumber) => {
+                    println!("Your argument(s) didn't meet the criteria.");
+                    return;
+                }
+                Ok(s) => s,
+            }
+            .export(False)
         );
     }
 }

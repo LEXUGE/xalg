@@ -15,8 +15,9 @@
 
 // use(s)
 use {
-    crate::{monomial::Monomial, formula::NeedBrackets::*, traits::Required},
-    rand::{thread_rng, Rng},
+    self::OperatorFlag::*,
+    crate::{formula::NeedBrackets::*, monomial::Monomial, traits::Required},
+    rand::{seq::IteratorRandom, thread_rng, Rng},
 };
 
 #[derive(PartialEq, Copy, Clone)]
@@ -28,6 +29,21 @@ pub enum NeedBrackets {
     False,
     /// Never need brackets for both its self and its kid(s).
     Never,
+}
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+/// The enum which denotes different operators.
+pub enum OperatorFlag {
+    /// feature flag of addition.
+    Add,
+    /// feature flag of subtraction.
+    Sub,
+    /// feature flag of multiplication.
+    Mul,
+    /// feature flag of division.
+    Div,
+    /// feature flag of power.
+    Pow,
 }
 
 #[derive(Debug)]
@@ -47,7 +63,12 @@ pub struct Formula<T: Required> {
 }
 
 impl<T: Required> Formula<T> {
-    pub(crate) fn generate(depth: T, exponent_limit: T, coefficient_limit: T) -> Self {
+    pub(crate) fn generate(
+        depth: T,
+        exponent_limit: T,
+        coefficient_limit: T,
+        operator_flags: &[OperatorFlag],
+    ) -> Self {
         let mut rng = thread_rng();
         let operator = if depth == T::zero() {
             Operators::Wrap(Monomial::generate(
@@ -56,60 +77,69 @@ impl<T: Required> Formula<T> {
             ))
         } else {
             let depth = depth - T::one();
-            match rng.gen_range(0, 5) {
-                0 => Operators::Add(
+            match operator_flags.iter().choose(&mut rng).unwrap() {
+                Add => Operators::Add(
                     Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
+                        operator_flags,
                     )),
                     Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
-                    )),
-                ),
-                1 => Operators::Sub(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
+                        operator_flags,
                     )),
                 ),
-                2 => Operators::Mul(
+                Sub => Operators::Sub(
                     Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
+                        operator_flags,
                     )),
                     Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
-                    )),
-                ),
-                3 => Operators::Div(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
+                        operator_flags,
                     )),
                 ),
-                4 => Operators::Pow(
+                Mul => Operators::Mul(
                     Box::new(Formula::generate(
                         depth,
                         exponent_limit,
                         coefficient_limit,
+                        operator_flags,
+                    )),
+                    Box::new(Formula::generate(
+                        depth,
+                        exponent_limit,
+                        coefficient_limit,
+                        operator_flags,
+                    )),
+                ),
+                Div => Operators::Div(
+                    Box::new(Formula::generate(
+                        depth,
+                        exponent_limit,
+                        coefficient_limit,
+                        operator_flags,
+                    )),
+                    Box::new(Formula::generate(
+                        depth,
+                        exponent_limit,
+                        coefficient_limit,
+                        operator_flags,
+                    )),
+                ),
+                Pow => Operators::Pow(
+                    Box::new(Formula::generate(
+                        depth,
+                        exponent_limit,
+                        coefficient_limit,
+                        operator_flags,
                     )),
                     if T::one() + T::one() >= exponent_limit {
                         T::one() + T::one()
@@ -117,13 +147,12 @@ impl<T: Required> Formula<T> {
                         rng.gen_range(T::one() + T::one(), exponent_limit)
                     },
                 ),
-                _ => unreachable!(),
             }
         };
         Self { operator }
     }
     /// export the AST to LaTeX code. Sets the argument to `Needbrackets::False` to use it.
-    pub fn export(&self, father_need_brackets: NeedBrackets) -> String {
+    pub fn export(&self, parent_need_brackets: NeedBrackets) -> String {
         let self_need_brackets = self.need_brackets();
         let origin = match &self.operator {
             Operators::Add(a, b) => format!(
@@ -149,7 +178,7 @@ impl<T: Required> Formula<T> {
             Operators::Pow(a, p) => format!("({})^{{{}}}", a.export(self_need_brackets), p),
             Operators::Wrap(a) => a.export(),
         };
-        if (father_need_brackets == True) && (self_need_brackets == False) {
+        if (parent_need_brackets == True) && (self_need_brackets == False) {
             format!("({})", origin)
         } else {
             origin

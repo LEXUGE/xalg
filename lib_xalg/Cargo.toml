@@ -1,6 +1,6 @@
 [package]
 name = "lib_xalg"
-version = "0.1.2"
+version = "0.2.0"
 repository = "https://github.com/LEXUGE/xalg"
 authors = ["Harry Ying <LEXUGEyky@outlook.com>"]
 license = "GPL-3.0"

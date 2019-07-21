@@ -16,13 +16,26 @@
 // use(s)
 use {
     criterion::{criterion_group, criterion_main, Criterion},
-    lib_xalg::{generate, formula::NeedBrackets::False},
+    lib_xalg::{
+        formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+        generate,
+    },
+    std::collections::HashSet,
 };
 
 fn bench_generate(c: &mut Criterion) {
     c.bench_function("generate", |b| {
         b.iter(|| {
-            generate(10, 10, 20).unwrap();
+            generate(
+                10,
+                10,
+                20,
+                &[Add, Sub, Mul, Div, Pow]
+                    .iter()
+                    .copied()
+                    .collect::<HashSet<OperatorFlag>>(),
+            )
+            .unwrap();
         })
     });
 }
@@ -30,7 +43,17 @@ fn bench_generate(c: &mut Criterion) {
 fn bench_export(c: &mut Criterion) {
     c.bench_function("export", |b| {
         b.iter(|| {
-            generate(10, 10, 20).unwrap().export(False);
+            generate(
+                10,
+                10,
+                20,
+                &[Add, Sub, Mul, Div, Pow]
+                    .iter()
+                    .copied()
+                    .collect::<HashSet<OperatorFlag>>(),
+            )
+            .unwrap()
+            .export(False);
         })
     });
 }
