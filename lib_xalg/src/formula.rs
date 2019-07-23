@@ -21,7 +21,7 @@ use {
     std::fmt,
 };
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 // The enum which denotes whether an operator need brackets or not.
 enum NeedBrackets {
     // The kid(s) of it need brackets.
@@ -152,6 +152,7 @@ impl<T: Required> Formula<T> {
 
 impl<T: Required> fmt::Display for Formula<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // A wrapper which is used for wrapping a layer of brackets around `Formula`.
         struct Wrapper<'a, T: Required>(&'a Formula<T>, bool);
         impl<'a, T: Required> fmt::Display for Wrapper<'a, T> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -162,6 +163,7 @@ impl<T: Required> fmt::Display for Formula<T> {
                 }
             }
         }
+        // Determines whether it should be wrapped or not.
         fn wrap<'a, T: Required>(
             formula: &'a Formula<T>,
             parent_need_brackets: NeedBrackets,
@@ -173,13 +175,24 @@ impl<T: Required> fmt::Display for Formula<T> {
             }
         }
         use self::Operators::*;
+        let need_brackets = self.need_brackets();
         match &self.operator {
             Lit(v) => write!(f, "{}", v),
-            Pow(a, p) => write!(f, "({})^{{{}}}", wrap(a, Never), p),
-            Mul(l, r) => write!(f, "{}\\times{{}}{}", wrap(l, True), wrap(r, True)),
-            Div(l, r) => write!(f, "\\frac{{{}}}{{{}}}", wrap(l, Never), wrap(r, Never)),
-            Add(l, r) => write!(f, "{}+{}", wrap(l, True), wrap(r, True)),
-            Sub(l, r) => write!(f, "{}-{}", wrap(l, True), wrap(r, True)),
+            Pow(a, p) => write!(f, "({})^{{{}}}", wrap(a, need_brackets), p),
+            Mul(l, r) => write!(
+                f,
+                "{}\\times{{}}{}",
+                wrap(l, need_brackets),
+                wrap(r, need_brackets)
+            ),
+            Div(l, r) => write!(
+                f,
+                "\\frac{{{}}}{{{}}}",
+                wrap(l, need_brackets),
+                wrap(r, need_brackets)
+            ),
+            Add(l, r) => write!(f, "{}+{}", wrap(l, need_brackets), wrap(r, need_brackets)),
+            Sub(l, r) => write!(f, "{}-{}", wrap(l, need_brackets), wrap(r, need_brackets)),
         }
     }
 }
@@ -206,7 +219,21 @@ mod tests {
                 ))),
             ))
             .to_string(),
-            "10x_{1}x_{3}^{2}+(1-13)"
+            r"10x_{1}x_{3}^{2}+1-13"
+        );
+        assert_eq!(
+            Formula::new(Operators::Mul(
+                Box::new(Formula::new(Operators::Lit(Monomial::new(
+                    vec![1, 0, 2],
+                    10
+                )))),
+                Box::new(Formula::new(Operators::Sub(
+                    Box::new(Formula::new(Operators::Lit(Monomial::new(vec![], 1)))),
+                    Box::new(Formula::new(Operators::Lit(Monomial::new(vec![0], 13)))),
+                ))),
+            ))
+            .to_string(),
+            r"10x_{1}x_{3}^{2}\times{}(1-13)"
         )
     }
 }
