@@ -17,7 +17,7 @@
 use {
     criterion::{criterion_group, criterion_main, Criterion},
     lib_xalg::{
-        formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+        formula::{OperatorFlag, OperatorFlag::*},
         generate,
     },
     std::collections::HashSet,
@@ -53,7 +53,7 @@ fn bench_export(c: &mut Criterion) {
                     .collect::<HashSet<OperatorFlag>>(),
             )
             .unwrap()
-            .export(False);
+            .to_string();
         })
     });
 }

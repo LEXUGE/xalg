@@ -26,13 +26,13 @@
 //! ```
 //! use {
 //!    lib_xalg::{
-//!        formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+//!        formula::{OperatorFlag, OperatorFlag::*},
 //!        generate,
 //!    },
 //!    std::collections::HashSet,
 //! };
 //! let hashset = [Add, Sub, Mul, Div, Pow].iter().copied().collect::<HashSet<OperatorFlag>>();
-//! generate(5, 3, 3, &hashset).unwrap().export(False);
+//! println!("{}", generate(5, 3, 3, &hashset).unwrap());
 //! ```
 
 #![deny(missing_docs)]
@@ -46,7 +46,7 @@ mod traits;
 // use(s)
 use {
     crate::{
-        formula::{Formula, OperatorFlag},
+        formula::{Formula, Info, OperatorFlag},
         traits::Required,
     },
     std::collections::HashSet,
@@ -85,11 +85,11 @@ pub fn generate<T: Required, S: std::hash::BuildHasher>(
             .iter()
             .copied()
             .collect::<Vec<OperatorFlag>>();
-        Ok(Formula::generate(
+        Ok(Formula::generate(Info::new(
             depth,
             exponent_limit,
             coefficient_limit,
             &operator_flags,
-        ))
+        )))
     }
 }

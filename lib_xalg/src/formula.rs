@@ -18,16 +18,17 @@ use {
     self::OperatorFlag::*,
     crate::{formula::NeedBrackets::*, monomial::Monomial, traits::Required},
     rand::{seq::IteratorRandom, thread_rng, Rng},
+    std::fmt,
 };
 
-#[derive(PartialEq, Copy, Clone)]
-/// The enum which denotes whether an operator need brackets or not.
-pub enum NeedBrackets {
-    /// The kid(s) of it need brackets.
+#[derive(PartialEq)]
+// The enum which denotes whether an operator need brackets or not.
+enum NeedBrackets {
+    // The kid(s) of it need brackets.
     True,
-    /// The kid(s) of it do(es)n't need brackets.
+    // The kid(s) of it do(es)n't need brackets.
     False,
-    /// Never need brackets for both its self and its kid(s).
+    // Never need brackets for both its self and its kid(s).
     Never,
 }
 
@@ -46,149 +47,166 @@ pub enum OperatorFlag {
     Pow,
 }
 
-#[derive(Debug)]
 enum Operators<T: Required> {
     Add(Box<Formula<T>>, Box<Formula<T>>),
     Sub(Box<Formula<T>>, Box<Formula<T>>),
     Mul(Box<Formula<T>>, Box<Formula<T>>),
     Div(Box<Formula<T>>, Box<Formula<T>>),
     Pow(Box<Formula<T>>, T),
-    Wrap(Monomial<T>),
+    Lit(Monomial<T>),
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone)]
+pub(crate) struct Info<'a, T: Required> {
+    depth: T,
+    exponent_limit: T,
+    coefficient_limit: T,
+    operator_flags: &'a [OperatorFlag],
+}
+
+impl<'a, T: Required> Info<'a, T> {
+    pub(crate) fn new(
+        depth: T,
+        exponent_limit: T,
+        coefficient_limit: T,
+        operator_flags: &'a [OperatorFlag],
+    ) -> Self {
+        Self {
+            depth,
+            exponent_limit,
+            coefficient_limit,
+            operator_flags,
+        }
+    }
+}
+
 /// The formula AST.
 pub struct Formula<T: Required> {
     operator: Operators<T>,
 }
 
 impl<T: Required> Formula<T> {
-    pub(crate) fn generate(
-        depth: T,
-        exponent_limit: T,
-        coefficient_limit: T,
-        operator_flags: &[OperatorFlag],
-    ) -> Self {
-        let mut rng = thread_rng();
-        let operator = if depth == T::zero() {
-            Operators::Wrap(Monomial::generate(
-                rng.gen_range(T::zero(), exponent_limit),
-                coefficient_limit,
-            ))
-        } else {
-            let depth = depth - T::one();
-            match operator_flags.iter().choose(&mut rng).unwrap() {
-                Add => Operators::Add(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                ),
-                Sub => Operators::Sub(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                ),
-                Mul => Operators::Mul(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                ),
-                Div => Operators::Div(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                ),
-                Pow => Operators::Pow(
-                    Box::new(Formula::generate(
-                        depth,
-                        exponent_limit,
-                        coefficient_limit,
-                        operator_flags,
-                    )),
-                    if T::one() + T::one() >= exponent_limit {
-                        T::one() + T::one()
-                    } else {
-                        rng.gen_range(T::one() + T::one(), exponent_limit)
-                    },
-                ),
-            }
-        };
+    #[cfg(test)]
+    // No need to use `pub` attr due to the fact that module `tests` is the descendant of `self`.
+    fn new(operator: Operators<T>) -> Self {
         Self { operator }
     }
-    /// export the AST to LaTeX code. Sets the argument to `Needbrackets::False` to use it.
-    pub fn export(&self, parent_need_brackets: NeedBrackets) -> String {
-        let self_need_brackets = self.need_brackets();
-        let origin = match &self.operator {
-            Operators::Add(a, b) => format!(
-                "{}+{}",
-                a.export(self_need_brackets),
-                b.export(self_need_brackets)
-            ),
-            Operators::Sub(a, b) => format!(
-                "{}-{}",
-                a.export(self_need_brackets),
-                b.export(self_need_brackets)
-            ),
-            Operators::Mul(a, b) => format!(
-                "{}\\times{{}}{}",
-                a.export(self_need_brackets),
-                b.export(self_need_brackets)
-            ),
-            Operators::Div(a, b) => format!(
-                "\\frac{{{}}}{{{}}}",
-                a.export(self_need_brackets),
-                b.export(self_need_brackets)
-            ),
-            Operators::Pow(a, p) => format!("({})^{{{}}}", a.export(self_need_brackets), p),
-            Operators::Wrap(a) => a.export(),
-        };
-        if (parent_need_brackets == True) && (self_need_brackets == False) {
-            format!("({})", origin)
+    pub(crate) fn generate(mut info: Info<T>) -> Self {
+        let mut rng = thread_rng();
+        if info.depth == T::zero() {
+            Self {
+                operator: Operators::Lit(Monomial::generate(
+                    rng.gen_range(T::zero(), info.exponent_limit),
+                    info.coefficient_limit,
+                )),
+            }
         } else {
-            origin
+            info.depth -= T::one();
+            match info.operator_flags.iter().choose(&mut rng).unwrap() {
+                Add => Self {
+                    operator: Operators::Add(
+                        Box::new(Formula::generate(info)),
+                        Box::new(Formula::generate(info)),
+                    ),
+                },
+                Sub => Self {
+                    operator: Operators::Sub(
+                        Box::new(Formula::generate(info)),
+                        Box::new(Formula::generate(info)),
+                    ),
+                },
+                Mul => Self {
+                    operator: Operators::Mul(
+                        Box::new(Formula::generate(info)),
+                        Box::new(Formula::generate(info)),
+                    ),
+                },
+                Div => Self {
+                    operator: Operators::Div(
+                        Box::new(Formula::generate(info)),
+                        Box::new(Formula::generate(info)),
+                    ),
+                },
+                Pow => Self {
+                    operator: Operators::Pow(
+                        Box::new(Formula::generate(info)),
+                        if T::one() + T::one() >= info.exponent_limit {
+                            T::one() + T::one()
+                        } else {
+                            rng.gen_range(T::one() + T::one(), info.exponent_limit)
+                        },
+                    ),
+                },
+            }
         }
     }
     fn need_brackets(&self) -> NeedBrackets {
-        match &self.operator {
-            Operators::Add(_, _) | Operators::Sub(_, _) => False,
-            Operators::Mul(_, _) => True,
-            Operators::Wrap(_) | Operators::Div(_, _) | Operators::Pow(_, _) => Never,
+        use self::Operators::*;
+        match self.operator {
+            Add(_, _) | Sub(_, _) => False,
+            Mul(_, _) => True,
+            Lit(_) | Div(_, _) | Pow(_, _) => Never,
         }
+    }
+}
+
+impl<T: Required> fmt::Display for Formula<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        struct Wrapper<'a, T: Required>(&'a Formula<T>, bool);
+        impl<'a, T: Required> fmt::Display for Wrapper<'a, T> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                if self.1 {
+                    write!(f, "({})", self.0)
+                } else {
+                    write!(f, "{}", self.0)
+                }
+            }
+        }
+        fn wrap<'a, T: Required>(
+            formula: &'a Formula<T>,
+            parent_need_brackets: NeedBrackets,
+        ) -> Wrapper<'a, T> {
+            if (parent_need_brackets == True) && (formula.need_brackets() == False) {
+                Wrapper(formula, true)
+            } else {
+                Wrapper(formula, false)
+            }
+        }
+        use self::Operators::*;
+        match &self.operator {
+            Lit(v) => write!(f, "{}", v),
+            Pow(a, p) => write!(f, "({})^{{{}}}", wrap(a, Never), p),
+            Mul(l, r) => write!(f, "{}\\times{{}}{}", wrap(l, True), wrap(r, True)),
+            Div(l, r) => write!(f, "\\frac{{{}}}{{{}}}", wrap(l, Never), wrap(r, Never)),
+            Add(l, r) => write!(f, "{}+{}", wrap(l, True), wrap(r, True)),
+            Sub(l, r) => write!(f, "{}-{}", wrap(l, True), wrap(r, True)),
+        }
+    }
+}
+
+// unit tests
+#[cfg(test)]
+mod tests {
+    use {
+        super::{Formula, Operators},
+        crate::monomial::Monomial,
+    };
+
+    #[test]
+    fn export_test() {
+        assert_eq!(
+            Formula::new(Operators::Add(
+                Box::new(Formula::new(Operators::Lit(Monomial::new(
+                    vec![1, 0, 2],
+                    10
+                )))),
+                Box::new(Formula::new(Operators::Sub(
+                    Box::new(Formula::new(Operators::Lit(Monomial::new(vec![], 1)))),
+                    Box::new(Formula::new(Operators::Lit(Monomial::new(vec![0], 13)))),
+                ))),
+            ))
+            .to_string(),
+            "10x_{1}x_{3}^{2}+(1-13)"
+        )
     }
 }

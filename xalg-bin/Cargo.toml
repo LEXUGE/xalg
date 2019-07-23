@@ -1,6 +1,6 @@
 [package]
 name = "xalg-bin"
-version = "0.2.0"
+version = "0.2.1"
 repository = "https://github.com/LEXUGE/xalg"
 description = "Random formula generator"
 license = "GPL-3.0"
@@ -10,5 +10,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lib_xalg = { version="^0.2", path = "../lib_xalg" }
+lib_xalg = { version="^0.3", path = "../lib_xalg" }
 clap = { version="^2", features = ["yaml"] }

@@ -1,6 +1,6 @@
 [package]
 name = "lib_xalg"
-version = "0.2.1"
+version = "0.3.0"
 repository = "https://github.com/LEXUGE/xalg"
 authors = ["Harry Ying <LEXUGEyky@outlook.com>"]
 license = "GPL-3.0"
@@ -12,7 +12,7 @@ edition = "2018"
 
 [dependencies]
 rand = { version = "^0.7", features = ["wasm-bindgen"] }
-num = "^0.2"
+num-traits = "^0.2"
 
 [dev-dependencies]
 criterion = "^0.2"

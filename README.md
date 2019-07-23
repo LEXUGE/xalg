@@ -1,6 +1,7 @@
 # XAlg
 ![screenshot](Screenshot.png)  
 A random formula generator  
+[Try it online!](https://lexuge.github.io/xalg-web/)
 
 ## Installation
 ```

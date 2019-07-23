@@ -15,7 +15,7 @@
 
 // use(s)
 use {
-    num::{One, Zero},
+    num_traits::identities::{One, Zero},
     rand::distributions::uniform::SampleUniform,
     std::{fmt::Display, marker::Sized, ops::*},
 };

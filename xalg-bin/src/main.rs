@@ -17,7 +17,7 @@
 use {
     clap::{load_yaml, App},
     lib_xalg::{
-        formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+        formula::{OperatorFlag, OperatorFlag::*},
         generate,
         ErrorKind::*,
     },
@@ -81,7 +81,6 @@ fn main() {
                 }
                 Ok(s) => s,
             }
-            .export(False)
         );
     }
 }

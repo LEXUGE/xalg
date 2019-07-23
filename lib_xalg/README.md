@@ -6,11 +6,11 @@ A library for generating random formulas.
 ```
 use {
    lib_xalg::{
-       formula::{NeedBrackets::False, OperatorFlag, OperatorFlag::*},
+       formula::{OperatorFlag, OperatorFlag::*},
        generate,
    },
    std::collections::HashSet,
 };
 let hashset = [Add, Sub, Mul, Div, Pow].iter().copied().collect::<HashSet<OperatorFlag>>();
-generate(5, 3, 3, &hashset).unwrap().export(False);
+println!("{}", generate(5, 3, 3, &hashset).unwrap());
 ```

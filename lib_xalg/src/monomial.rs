@@ -17,15 +17,22 @@
 use {
     crate::traits::Required,
     rand::{thread_rng, Rng},
+    std::fmt,
 };
 
-#[derive(Debug)]
 pub struct Monomial<T: Required> {
     exponents: Vec<T>,
     coefficient: T,
 }
 
 impl<T: Required> Monomial<T> {
+    #[cfg(test)]
+    pub(crate) fn new(exponents: Vec<T>, coefficient: T) -> Self {
+        Self {
+            exponents,
+            coefficient,
+        }
+    }
     pub fn generate(mut exponent_limit: T, coefficient_limit: T) -> Self {
         let mut rng = thread_rng();
         let coefficient = rng.gen_range(T::one(), coefficient_limit);
@@ -40,29 +47,32 @@ impl<T: Required> Monomial<T> {
             coefficient,
         }
     }
-    pub fn export(&self) -> String {
+}
+
+impl<T: Required> fmt::Display for Monomial<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut flag = false;
-        let mut origin = if self.coefficient == T::zero() {
-            return self.coefficient.to_string();
+        if self.coefficient == T::zero() {
+            return write!(f, "{}", self.coefficient);
         } else if self.coefficient == T::one() {
             flag = true;
-            "".to_string()
         } else {
-            self.coefficient.to_string()
-        };
+            write!(f, "{}", self.coefficient)?;
+        }
         for i in 0..self.exponents.len() {
             if self.exponents[i] == T::zero() {
             } else if self.exponents[i] == T::one() {
                 flag = false;
-                origin.push_str(&format!("x_{{{}}}", (i + 1)))
+                write!(f, "x_{{{}}}", (i + 1))?;
             } else {
                 flag = false;
-                origin.push_str(&format!("x_{{{}}}^{{{}}}", (i + 1), self.exponents[i]))
+                write!(f, "x_{{{}}}^{{{}}}", (i + 1), self.exponents[i])?;
             };
         }
         if flag {
-            origin.push('1');
+            write!(f, "1")
+        } else {
+            Ok(())
         }
-        origin
     }
 }
